@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login - Virtual Study Room</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+  />
+  <style>
+    :root {
+      --primary: #202124;
+      --secondary: #303134;
+      --accent: #8ab4f8;
+      --light: #e8eaed;
+      --dark: #1c2526;
+      --success: #34a853;
+      --warning: #fbbc05;
+      --danger: #ea4335;
+      --muted: #5f6368;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--primary);
+      min-height: 100vh;
+      color: var(--light);
+      font-family: "Roboto", sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      direction: ltr;
+    }
+
+    .container {
+      background: var(--secondary);
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      color: var(--light);
+      text-align: center;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: var(--light);
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 6px;
+      background: var(--dark);
+      color: var(--light);
+      font-size: 1rem;
+      transition: border-color 0.3s;
+      direction: ltr;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    input::placeholder {
+      color: var(--muted);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px 15px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: transform 0.3s, background 0.3s;
+      direction: ltr;
+    }
+
+    button:hover {
+      transform: scale(1.02);
+    }
+
+    button.primary {
+      background: var(--accent);
+      color: var(--dark);
+    }
+
+    .toggle-link {
+      text-align: center;
+      margin-top: 15px;
+      cursor: pointer;
+      color: var(--accent);
+      font-size: 0.9rem;
+      transition: color 0.3s;
+      direction: ltr;
+    }
+
+    .toggle-link:hover {
+      color: var(--light);
+    }
+
+    #loginError {
+      color: var(--danger);
+      font-size: 0.9rem;
+      margin-top: 10px;
+      min-height: 20px;
+      direction: ltr;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+        max-width: 90%;
+      }
+      h2 {
+        font-size: 1.3rem;
+      }
+      input,
+      button {
+        font-size: 0.9rem;
+        padding: 10px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Login to Study Room</h2>
+    <input type="text" id="loginUsername" placeholder="Username" />
+    <input type="password" id="loginPassword" placeholder="Password" />
+    <button id="loginBtn" class="primary">Login</button>
+    <p id="loginError"></p>
+    <p class="toggle-link"><a href="register.html">Don't have an account? Register</a></p>
+  </div>
+
+  <script>
+    function showError(id, msg) {
+      document.getElementById(id).textContent = msg;
+    }
+
+    document.getElementById("loginBtn").addEventListener("click", () => {
+      console.log("Login button clicked");
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      console.log("Login inputs:", { username, password });
+
+      if (!username || !password) {
+        let missingFields = [];
+        if (!username) missingFields.push("Username");
+        if (!password) missingFields.push("Password");
+        showError("loginError", `Please fill in: ${missingFields.join(", ")}`);
+        console.log("Login failed: Missing fields", missingFields);
+        return;
+      }
+
+      const usersDB = JSON.parse(localStorage.getItem("usersDB")) || {};
+      if (!usersDB[username] || usersDB[username].password !== password) {
+        showError("loginError", "Invalid username or password");
+        console.log("Login failed: Invalid credentials");
+        return;
+      }
+
+      console.log("Login successful:", username);
+      localStorage.setItem("loggedInUser", username);
+      showError("loginError", "Login successful! Redirecting...");
+
+      setTimeout(() => {
+        console.log("Redirecting to index.html");
+        window.location.href = "index.html";
+      }, 1500);
+      fetch('/register', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ username, email, password })
+}).then(res => res.json()).then(data => {
+  if (data.error) {
+    showError('registerError', data.error);
+  } else {
+    showError('registerError', 'Registered successfully! Redirecting...');
+    setTimeout(() => window.location.href = 'login.html', 1500);
+  }
+});
+    });
+  </script>
+</body>
+</html>
